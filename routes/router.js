@@ -1,16 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcryptjs');
-const uuid = require('uuid');
 const jwt = require('jsonwebtoken');
-const db = require('../lib/db.js');
- const userMiddleware = require('../middleware/users.js');
- const fs=require('fs');
- const app = express();
-
- const axios = require("axios");
-const { response } = require('express');
+const app = express();
+const date = require('date-and-time');
+const axios = require("axios");
 const { json } = require('body-parser');
+var now = new Date();
+
+today=date.format(now, 'DD-MM-YYYY'); 
+
+
 app.use('/api', router);
 
 
@@ -25,7 +24,7 @@ app.use('/api', router);
 // login 
 router.post('/login', (req, res, next) => {
   
-    
+    console.log(req.body);
   axios.get(`http://localhost/api.php/records/users?filter=username,eq,${req.body.username}&filter=password,eq,${req.body.password}`).then(
   
         (resp) => {
@@ -40,13 +39,15 @@ router.post('/login', (req, res, next) => {
           }
         );
                    return res.status(200).send({
+                     "error":0,
           msg: 'Logged in!',
           token,
           user: resp.data.records[0]
           
         });
          }else{
-          return res.status(401).send({
+          return res.status(200).send({
+            "error":1,
                     msg: 'Username is incorrect!'
                   });
          }
@@ -103,18 +104,13 @@ router.post('/login', (req, res, next) => {
   
         (resp) => {
           
-         if(resp.data.records.length>0){
+  
          
-                   return res.status(200).send({
+                   return res.status(200).send(
       
-          room: resp.data.records
-          
-        });
-         }else{
-          return res.status(401).send({
-                    msg: 'NO ROOM WITH THIS ID'
-                  });
-         }
+          resp.data
+        );
+         
                     
     }) 
 
@@ -123,32 +119,7 @@ router.post('/login', (req, res, next) => {
 
 
 
-// room with filtre 
 
- router.get('/rooms', (req, res, next) => {
-  
-    
-  axios.get(`http://localhost/api.php/records/rooms?filter=type,eq,${req.body.type}&filter=nb_disponible,le,${req.body.nbre}`).then(
-  
-        (resp) => {
-          
-         if(resp.data.records.length>0){
-         
-                   return res.status(200).send({
-      
-          room: resp.data.records
-          
-        });
-         }else{
-          return res.status(401).send({
-                    msg: 'NO ROOM Disponible'
-                  });
-         }
-                    
-    }) 
-
-  
-  });
 
 
 
@@ -160,19 +131,13 @@ router.post('/login', (req, res, next) => {
   axios.get(`http://localhost/api.php/records/hotels`).then(
   
         (resp) => {
-          
-         if(resp.data.records.length>0){
-         
-                   return res.status(200).send({
+    
+                   return res.status(200).send(
       
-          room: resp.data.records
+           resp.data
           
-        });
-         }else{
-          return res.status(401).send({
-                    msg: 'No hotel found'
-                  });
-         }
+        );
+         
                     
     }) 
 
@@ -338,7 +303,56 @@ router.post('/login', (req, res, next) => {
             
             )});
 
- 
-     
+const decrement_rooms=async(id,nb)=>{
+const room=await axios.get(`http://localhost/api.php/records/rooms/${id}`)
+const room_nb={
+  nb_disponible:room.data.records.nb_disponible-nb
+}
+await axios.put(`http://localhost/api.php/records/rooms/${id}`)
+return;
+}
+const increment_rooms=async(id,nb)=>{
+
+  const room=await axios.get(`http://localhost/api.php/records/rooms/${id}`)
+  const room_nb={
+    nb_disponible:room.data.nb_disponible-nb
+  }
   
+ 
+   await axios.put(`http://localhost/api.php/records/rooms/${id}`,room_nb)
+  return;
+  }
+const check_availabe=async ()=>{
+const rooms=await axios.get('http://localhost/api.php/records/reservations')
+rooms.data.records.map(async(room)=>{
+
+if(room.to<today){
+ 
+ await axios.delete(`http://localhost/api.php/records/reservations/${room.id}`)
+ increment_rooms(room.room_id,1)
+}
+ 
+})
+
+     }
+     const fake_reserve=async()=>{
+var rooms=await axios.get('http://localhost/api.php/records/rooms')
+rooms=rooms.data.records
+rooms.map(async(room)=>{
+  var data={
+    "user_id":1,
+    "room_id":room.id,
+    "from":today,
+    "to": date.format(date.addDays(now, -1), 'DD-MM-YYYY'),
+    "amount":30,
+    "nb_nuit":2
+  }
+await axios.post('http://localhost/api.php/records/reservations',data)
+
+
+})
+
+     }
+//check_availabe();
+ //fake_reserve();
 module.exports = router;
