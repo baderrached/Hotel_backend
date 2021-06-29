@@ -25,7 +25,7 @@ app.use('/api', router);
 router.post('/login', (req, res, next) => {
   
     console.log(req.body);
-  axios.get(`http://localhost/api.php/records/users?filter=username,eq,${req.body.username}&filter=password,eq,${req.body.password}`).then(
+  axios.get(`http://localhost/api.php/records/clients?filter=username,eq,${req.body.username}&filter=password,eq,${req.body.password}`).then(
   
         (resp) => {
           
@@ -100,7 +100,7 @@ router.post('/login', (req, res, next) => {
  router.get('/rooms', (req, res, next) => {
   
     
-  axios.get(`http://localhost/api.php/records/rooms`).then(
+  axios.get(`http://localhost/api.php/records/rooms?join=hotels`).then(
   
         (resp) => {
           
@@ -242,7 +242,7 @@ router.post('/login', (req, res, next) => {
     router.post("/update/users/:id",(req,res)=>{
       var id=req.params.id;
       var body=req.body
-      axios.put(`http://localhost/api.php/records/users/${id}`,body, head).then(
+      axios.put(`http://localhost/api.php/records/clients/${id}`,body, head).then(
         (resp) => { 
           axios.get(`http://localhost/api.php/records/user?filter=id,eq,${id}`).then(
             (user)=>{
