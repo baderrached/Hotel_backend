@@ -20,7 +20,14 @@ app.use('/api', router);
 
 
 
-
+router.get('/extra',async(req,res)=>{
+  const list=await axios.get('http://localhost/api.php/records/extra_list')
+  res.send(list.data.records)
+})
+router.post('/CreateOrder',async(req,res)=>{
+  console.log(req.body);
+  res.send(req.body)
+})
 // login 
 router.post('/login', (req, res, next) => {
   
