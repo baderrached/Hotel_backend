@@ -70,7 +70,7 @@ router.post('/login', (req, res, next) => {
 // register 
 router.post('/register', (req, res, next) => {
 
-
+console.log(req.query);
   axios.get(`http://localhost/api.php/records/clients?filter=username,eq,${req.query.username}`).then(
     (resp)=>{
       if(resp.data.records.length>0){
@@ -81,7 +81,7 @@ router.post('/register', (req, res, next) => {
           var object={
           "username":req.query.username,
           "password":req.query.password,
-          "passeport":req.query.passeport,
+          "passeport_cin":req.query.passeport,
 
           
         }
@@ -404,7 +404,7 @@ console.log(req.body);
        res.send('yes')
      })
      router.get('/findRoom/:id',async(req,res)=>{
-       let room=await axios.get(`http://localhost/api.php/records/reservations?filter=user_id,eq,${req.params.id}&order=id,desc`)
+       let room=await axios.get(`http://localhost/api.php/records/reservations?filter=user_id,eq,${req.params.id}&order=status,desc&join=rooms`)
        if(room.data.records.length==0){
          return res.send({
            "rooms":0,
@@ -419,6 +419,46 @@ console.log(req.body);
         "last_room":room.data.records[0]
       })
      })
-//check_availabe();
- //fake_reserve();
+router.get('/room_requests/:id', async(req, res, next) => {
+  try {
+const room=await axios.get(`http://localhost/api.php/records/extra_demande?filter=user_id,eq,${req.params.id}&order=id,desc&size=1`)
+if(room.data.records.length==0){
+  
+  return res.send({
+    "available":true
+  })
+}
+else{
+  return res.send({
+    "available":room.data.records[0].status==0?false:true
+  })
+}
+  } catch (error) {
+    return res.send({
+      "available":true
+    })
+  }
+
+})
+router.post('/room_requests/:id',async (req, res, next) => {
+  // console.log(req.params)
+  try {
+let user_room=await axios.get(`http://localhost/api.php/records/reservations?filter=user_id,eq,${req.params.id}&filter=status,eq,1&order=id,desc&size=1`)
+console.log(user_room.data.records)  
+await axios.post(`http://localhost/api.php/records/extra_demande`,{
+      "user_id":req.params.id,
+      "room_id":user_room.data.records[0].room_id,
+      "status":0
+    })
+    return res.send({
+      "message":`Room service on it's way to your room : ${user_room.data.records[0].room_id}`
+    })
+
+  } catch (error) {
+    console.log(error.message);
+    return res.send({
+      "message":"please check in or Reserve a room first"
+    })
+  }
+})
 module.exports = router;
