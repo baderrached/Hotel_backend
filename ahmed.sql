@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jul 19, 2021 at 08:29 PM
+-- Generation Time: Jul 27, 2021 at 08:55 PM
 -- Server version: 10.4.19-MariaDB
 -- PHP Version: 7.4.20
 
@@ -40,10 +40,6 @@ CREATE TABLE `clients` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
--- RELATIONSHIPS FOR TABLE `clients`:
---
-
---
 -- Dumping data for table `clients`
 --
 
@@ -63,12 +59,6 @@ CREATE TABLE `extra_demande` (
   `room_id` int(11) NOT NULL,
   `status` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- RELATIONSHIPS FOR TABLE `extra_demande`:
---   `user_id`
---       `clients` -> `id`
---
 
 --
 -- Dumping data for table `extra_demande`
@@ -93,10 +83,6 @@ CREATE TABLE `extra_list` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
--- RELATIONSHIPS FOR TABLE `extra_list`:
---
-
---
 -- Dumping data for table `extra_list`
 --
 
@@ -119,10 +105,6 @@ CREATE TABLE `failed_jobs` (
   `failed_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- RELATIONSHIPS FOR TABLE `failed_jobs`:
---
-
 -- --------------------------------------------------------
 
 --
@@ -139,10 +121,6 @@ CREATE TABLE `hotels` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- RELATIONSHIPS FOR TABLE `hotels`:
---
 
 --
 -- Dumping data for table `hotels`
@@ -163,10 +141,6 @@ CREATE TABLE `migrations` (
   `batch` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- RELATIONSHIPS FOR TABLE `migrations`:
---
-
 -- --------------------------------------------------------
 
 --
@@ -179,10 +153,6 @@ CREATE TABLE `orders` (
   `orders` text NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- RELATIONSHIPS FOR TABLE `orders`:
---
 
 --
 -- Dumping data for table `orders`
@@ -206,10 +176,6 @@ CREATE TABLE `password_resets` (
   `created_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- RELATIONSHIPS FOR TABLE `password_resets`:
---
-
 -- --------------------------------------------------------
 
 --
@@ -223,10 +189,6 @@ CREATE TABLE `payment` (
   `ex_date` varchar(255) NOT NULL,
   `cvv` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- RELATIONSHIPS FOR TABLE `payment`:
---
 
 --
 -- Dumping data for table `payment`
@@ -270,12 +232,6 @@ CREATE TABLE `reservations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
--- RELATIONSHIPS FOR TABLE `reservations`:
---   `room_id`
---       `rooms` -> `id`
---
-
---
 -- Dumping data for table `reservations`
 --
 
@@ -312,17 +268,44 @@ CREATE TABLE `rooms` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
--- RELATIONSHIPS FOR TABLE `rooms`:
---   `hotel_id`
---       `hotels` -> `id`
---
-
---
 -- Dumping data for table `rooms`
 --
 
 INSERT INTO `rooms` (`id`, `room_name`, `nb_adulte`, `nb_children`, `type`, `descreption`, `price`, `nb_disponible`, `hotel_id`, `image`, `activated`, `created_at`, `updated_at`) VALUES
 (1, 'room 1', 2, 1, 'double', 'double', 120, 12, 1, 'https://www.movenpick.com/fileadmin/_processed_/0/f/csm_Sousse_xxxxxxxx_i111746_eb9d1a8793.jpg', 'active', '2021-07-11 20:36:31', '0000-00-00 00:00:00');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `spa_restau`
+--
+
+CREATE TABLE `spa_restau` (
+  `id` int(255) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `image` varchar(255) NOT NULL,
+  `status` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `spa_restau`
+--
+
+INSERT INTO `spa_restau` (`id`, `name`, `image`, `status`) VALUES
+(1, 'spa', 'https://media.istockphoto.com/photos/spa-treatment-set-picture-id856952836?k=6&m=856952836&s=612x612&w=0&h=SOBOS19NkClUp1bE2WifuH_WpQmGps-YaNU6JG7ym2Y=', 'active');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `spa_restau_reservation`
+--
+
+CREATE TABLE `spa_restau_reservation` (
+  `id` int(255) NOT NULL,
+  `user_id` int(255) NOT NULL,
+  `day` varchar(255) NOT NULL,
+  `time` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -340,10 +323,6 @@ CREATE TABLE `users` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- RELATIONSHIPS FOR TABLE `users`:
---
 
 --
 -- Indexes for dumped tables
@@ -420,6 +399,18 @@ ALTER TABLE `rooms`
   ADD KEY `hotel_id` (`hotel_id`);
 
 --
+-- Indexes for table `spa_restau`
+--
+ALTER TABLE `spa_restau`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `spa_restau_reservation`
+--
+ALTER TABLE `spa_restau_reservation`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
@@ -489,6 +480,18 @@ ALTER TABLE `reservations`
 --
 ALTER TABLE `rooms`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `spa_restau`
+--
+ALTER TABLE `spa_restau`
+  MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `spa_restau_reservation`
+--
+ALTER TABLE `spa_restau_reservation`
+  MODIFY `id` int(255) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `users`

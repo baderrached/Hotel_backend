@@ -461,4 +461,14 @@ await axios.post(`http://localhost/api.php/records/extra_demande`,{
     })
   }
 })
+router.get('/spa_restau',async(req,res)=>{
+const result=await axios.get('http://localhost/api.php/records/spa_restau')
+res.send(result.data.records)
+})
+router.post('/spa_restau',async(req,res)=>{
+
+  const result=await axios.post('http://localhost/api.php/records/spa_restau_reservation',req.body)
+  res.send(200)
+  })
+
 module.exports = router;
