@@ -21,11 +21,14 @@ app.use('/api', router);
 
 
 router.get('/extra',async(req,res)=>{
-  const list=await axios.get('http://localhost/api.php/records/extra_list')
+  const room_id=req.query.id
+  console.log(room_id);
+  //const hotel_id=await axios.get('http://localhost/api.php/records/extra_list');
+  const list=await axios.get(`http://localhost/api.php/records/extra_list?filter=hotel_id,eq,${room_id}`)
   res.send(list.data.records)
 })
 router.post('/CreateOrder',async(req,res)=>{
-  console.log(req.body);
+
   req.body.orders=JSON.stringify(req.body.orders)
   const order=await axios.post(`http://localhost/api.php/records/orders`,req.body)
   
@@ -377,6 +380,7 @@ date2=new Date(date2)
 var Difference_In_Time = date2.getTime() - date1.getTime();
 var Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
 console.log({Difference_In_Days});
+let hotel_id=await axios.get(`http://localhost/api.php/records/hotels/${req.body.date_room.id}`)
 
 console.log(req.body);
       let Card={
@@ -390,6 +394,7 @@ console.log(req.body);
       let reserver={
         "user_id":req.body.username,
         "room_id":req.body.date_room.id,
+        "hotel_id":hotel_id.data.id,
         "from":new Date(req.body.from).toLocaleDateString(),
         "to":new Date(req.body.to).toLocaleDateString(),
         "amount":req.body.date_room.price*Difference_In_Days,
@@ -443,11 +448,13 @@ else{
 router.post('/room_requests/:id',async (req, res, next) => {
   // console.log(req.params)
   try {
-let user_room=await axios.get(`http://localhost/api.php/records/reservations?filter=user_id,eq,${req.params.id}&filter=status,eq,1&order=id,desc&size=1`)
-console.log(user_room.data.records)  
+let user_room=await axios.get(`http://localhost/api.php/records/reservations?filter=user_id,eq,${req.params.id}&filter=status,eq,1&order=id,desc&size=1&join=hotels`)
+let hotel_id=await axios.get(`http://localhost/api.php/records/hotels/${user_room.data.records[0].hotel_id}`)
+
 await axios.post(`http://localhost/api.php/records/extra_demande`,{
       "user_id":req.params.id,
       "room_id":user_room.data.records[0].room_id,
+      "hotel_id":hotel_id.data.id,
       "status":0
     })
     return res.send({
@@ -462,7 +469,7 @@ await axios.post(`http://localhost/api.php/records/extra_demande`,{
   }
 })
 router.get('/spa_restau',async(req,res)=>{
-const result=await axios.get('http://localhost/api.php/records/spa_restau')
+const result=await axios.get(`http://localhost/api.php/records/spa_restau?filter=hotel_id,eq,${req.query.id}`)
 res.send(result.data.records)
 })
 router.post('/spa_restau',async(req,res)=>{
